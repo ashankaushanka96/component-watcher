@@ -4,4 +4,5 @@ stages:
 test repo:
     stage: test
     script:
-        - cp -rf * /tmp
+        - cp -rf * component-watcher 
+        - cp -rf component-watcher /usr/tmp
