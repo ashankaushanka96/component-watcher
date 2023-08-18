@@ -5,4 +5,4 @@ test repo:
     image: alpine
     stage: test
     script:
-        - ll
+        - ls
