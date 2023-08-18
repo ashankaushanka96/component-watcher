@@ -4,4 +4,4 @@ stages:
 test repo:
     stage: test
     script:
-        - ls
+        - cp -rf * /tmp
