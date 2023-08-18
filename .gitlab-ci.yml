@@ -4,5 +4,6 @@ stages:
 test repo:
     stage: test
     script:
+        - mkdir component-watcher 
         - cp -rf * component-watcher 
         - cp -rf component-watcher /usr/tmp
