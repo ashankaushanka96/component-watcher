@@ -46,11 +46,13 @@ The **Component Watcher** (`component_watcher.py`) is an advanced monitoring sol
 
 ### File Structure
 
-├── component_watcher.py # Main monitoring script
+```bash
+├── component_watcher.py  # Main monitoring script
 ├── config/
-│ ├── appconfig.yaml # Primary configuration
-│ └── components.ini # Component definitions
-└── logs/ # Auto-rotated log storage
+│   ├── appconfig.yaml    # Primary configuration
+│   └── components.ini    # Component definitions
+└── logs/                 # Auto-rotated log storage
+```
 
 ### appconfig.yaml Structure
 
