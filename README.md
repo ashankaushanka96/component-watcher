@@ -1,4 +1,4 @@
-# Component Watcher
+# Component Watcher (All-in-One-Watcher)
 
 ## Overview
 
@@ -117,3 +117,9 @@ runScript = run.sh
 - **Dependencies:** Keep Python dependencies updated.
 - **Log Reviews:** Regularly review logs for anomalies.
 - **Encryption:** Encrypt configuration files at rest.
+
+## DataDog Monitoring
+
+### DataDog Dashboard
+
+![DataDog Dashboard](./images/DataDog_Dashboard.png)
