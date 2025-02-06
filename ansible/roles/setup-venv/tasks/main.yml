@@ -1,0 +1,10 @@
+---
+- name: Create Python virtual environment
+  command: "python3 -m venv {{ venv_path }}"
+  args:
+    creates: "{{ venv_path }}"
+
+- name: Install requirements in the virtual environment
+  pip:
+    requirements: "{{ component_path }}/requirements.txt"
+    virtualenv: "{{ venv_path }}"

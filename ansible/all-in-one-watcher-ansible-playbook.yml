@@ -1,0 +1,20 @@
+- name: "all-in-one-watcher-ansible-playbook"
+  hosts: "{{ target_group }}"
+  remote_user: devopsservice
+  connection: ssh
+  become: true
+  become_user: gtnuser
+  vars:
+    component_path: /apps/component_watcher
+    _date: "{{ansible_date_time.iso8601}}"
+    venv_path: "{{ component_path }}/.venv"
+    python_file_name: "{{ python_file_name }}"
+    region_name: "{{ region_name }}"
+  roles:
+    - backup-files
+    - create-directories
+    - copy-files
+    - update-files
+    - setup-venv
+    - set-permissions
+    - restart-service

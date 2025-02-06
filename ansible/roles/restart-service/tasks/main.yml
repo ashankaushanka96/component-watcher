@@ -1,0 +1,7 @@
+---
+- name: Run restart.sh
+  command: "{{ component_path }}/restart.sh"
+  args:
+    chdir: "{{ component_path }}"
+  ignore_errors: yes
+

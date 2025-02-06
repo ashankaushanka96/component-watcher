@@ -1,9 +1,88 @@
-stages:
-    - test
+# Note this is an Gitlab project, in Github this will not work
 
-test repo:
-    stage: test
-    script:
-        - mkdir component-watcher 
-        - rsync -av --exclude='component-watcher' * component-watcher/
-        - rsync -av component-watcher /usr/tmp
+variables:
+  VERSION: 1.0.${CI_PIPELINE_IID}
+  PRODUCT: mbe
+  SERVICE: all-in-one-watcher
+  PYTHON_FILE_NAME: component_watcher.py
+
+stages:
+ - build
+ - deploy
+
+.git_access:
+  before_script:
+    - git config --global credential.helper store
+    - echo "https://gitlab-ci-token:${ANSIBLE_ROLES_REGISTRY_KEY}@gitlab.com" >>  ~/.git-credentials
+    - chmod 600 ~/.git-credentials
+
+
+build:
+  stage: build
+  image: alpine:latest
+  tags:
+    - mbe
+    - uat
+  script: 
+    - mkdir watcher_stuff
+    - cp -rf ${PYTHON_FILE_NAME} config *.sh version.txt README.md requirements.txt watcher_stuff/
+    - tar -czf watcher_stuff.tar.gz watcher_stuff/
+  artifacts:
+    paths:
+      - watcher_stuff.tar.gz
+
+.deploy_all:
+  image: $DOCKER_REGISTRY/ansible:latest
+  stage: deploy
+  extends: 
+    - .git_access
+  script:
+    - cd $ANSIBLE_DIR
+    - ansible-playbook ${CI_PROJECT_DIR}/ansible/$SERVICE-ansible-playbook.yml --extra-vars "ansible_private_key_file=$ANSIBLE_KEY_FILE python_file_name="all-in-one-watcher.py" region_name=$AWS_DEFAULT_REGION target_group=$CI_ENVIRONMENT_NAME ansible_ssh_common_args='-o StrictHostKeyChecking=no'" -i ${CI_PROJECT_DIR}/ansible/hosts.txt
+  needs:
+    - build
+  dependencies:
+    - build
+  when: manual
+
+.deploy_single_host:
+  image: $DOCKER_REGISTRY/ansible:latest
+  stage: deploy
+  extends: 
+    - .git_access
+  script:
+    - cd $ANSIBLE_DIR
+    - ansible-playbook ${CI_PROJECT_DIR}/ansible/$SERVICE-ansible-playbook.yml --extra-vars "ansible_private_key_file=$ANSIBLE_KEY_FILE python_file_name="all-in-one-watcher.py" region_name=$AWS_DEFAULT_REGION target_group=all ansible_ssh_common_args='-o StrictHostKeyChecking=no'" -i "${HOST_IP},"
+  needs:
+    - build
+  dependencies:
+    - build
+  when: manual
+
+deploy_prod_us_all:
+  tags:
+    - mbe
+    - prod
+  environment: prod-us
+  extends: .deploy_all  
+
+deploy_prod_asia_all:
+  tags:
+    - mbe
+    - prod-asia
+  environment: prod-asia
+  extends: .deploy_all
+
+deploy_prod_us_single_host:
+  tags:
+    - mbe
+    - prod
+  environment: prod-us
+  extends: .deploy_single_host  
+
+deploy_prod_asia_single_host:
+  tags:
+    - mbe
+    - prod-asia
+  environment: prod-asia
+  extends: .deploy_single_host

@@ -1,0 +1,7 @@
+loguru
+datadog
+psutil
+boto3
+pyyaml
+botocore
+requests

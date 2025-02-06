@@ -1,0 +1,42 @@
+---
+- name: Backup directory create
+  file:
+    path: "{{ component_path }}/deployments/{{ _date }}"
+    state: directory
+    mode: '0755'
+
+- name: Check config directory exists
+  stat:
+    path: "{{ component_path }}/config"
+  register: existing_files_config
+
+- name: Backup config directory
+  copy:
+    src: "{{ component_path }}/config"
+    dest: "{{ component_path }}/deployments/{{ _date }}/config"
+    remote_src: yes
+  when: existing_files_config.stat.exists
+
+- name: Check if {{ python_file_name }} exists
+  stat:
+    path: "{{ component_path }}/{{ python_file_name }}"
+  register: existing_all_in_one_watcher
+
+- name: Backup {{ python_file_name }}
+  copy:
+    src: "{{ component_path }}/{{ python_file_name }}"
+    dest: "{{ component_path }}/deployments/{{ _date }}/"
+  when: existing_all_in_one_watcher.stat.exists
+
+- name: Archive the backup directory
+  archive:
+    path: "{{ component_path }}/deployments/{{ _date }}"
+    dest: "{{ component_path }}/deployments/{{ _date }}.zip"
+    format: zip
+
+- name: Delete the backup folder after archiving
+  file:
+    path: "{{ component_path }}/deployments/{{ _date }}"
+    state: absent
+
+

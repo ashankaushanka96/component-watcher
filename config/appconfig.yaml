@@ -1,0 +1,12 @@
+# appconfig.yaml
+
+mail_configs:
+  from_address: "watcher@gtnmarketdataservices.com"
+  to_address: "feed.alerts@gtngroup.com"
+
+logs_size_send: true
+process_details_send: true
+
+aws_secrets_manager:
+  secret_name: "ses-credentials"  
+  region_name: "aws_region"  

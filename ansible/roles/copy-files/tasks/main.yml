@@ -1,0 +1,55 @@
+---
+- name: Copy watcher stuff to server
+  copy:
+    src: "../watcher_stuff.tar.gz"
+    dest: "{{ component_path }}/"
+
+- name: Extract watcher_stuff.tar.gz
+  ansible.builtin.unarchive:
+    src: "{{ component_path }}/watcher_stuff.tar.gz"
+    dest: "{{ component_path }}/"
+    remote_src: yes
+
+- name: Find files in watcher_stuff directory (non-recursive)
+  ansible.builtin.find:
+    paths: "{{ component_path }}/watcher_stuff"
+    file_type: file
+    recurse: no
+  register: found_files
+
+- name: Copy files to component_path
+  ansible.builtin.copy:
+    src: "{{ item.path }}"
+    dest: "{{ component_path }}/"
+    remote_src: yes 
+  loop: "{{ found_files.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}" 
+
+- name: Check if config.ini exists
+  ansible.builtin.stat:
+    path: "{{ component_path }}/config/config.ini"
+  register: config_check 
+
+- name: Copy config.ini if missing
+  ansible.builtin.copy:
+    src: "{{ component_path }}/watcher_stuff/config/config.ini"
+    dest: "{{ component_path }}/config/"
+    remote_src: yes
+    mode: preserve 
+  when: not config_check.stat.exists
+
+- name: Copy appconfig.yaml
+  ansible.builtin.copy:
+    src: "{{ component_path }}/watcher_stuff/config/appconfig.yaml"
+    dest: "{{ component_path }}/config/"
+    remote_src: yes
+    mode: preserve 
+
+- name: Remove watcher_stuff directory and tar file
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "{{ component_path }}/watcher_stuff"
+    - "{{ component_path }}/watcher_stuff.tar.gz"
